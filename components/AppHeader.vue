@@ -1,9 +1,16 @@
 <template>
   <div class="header">
-    <img src="/img/logo-white.png" alt="logo-white" srcset="" />
+    <div style="display: flex; align-items: center">
+      <img
+        src="/img/logo-white.png"
+        alt="logo-white"
+        srcset=""
+        style="width: 125px; height: fit-content"
+      />
+    </div>
     <div class="promotion_text">
       <div>
-        <p class="text_center">PROMOTION</p>
+        <p class="text_center" style="margin-bottom: 0px">PROMOTION</p>
         <p class="text_center">ENDS IN</p>
       </div>
       <div class="timer">
