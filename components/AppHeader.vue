@@ -2,7 +2,7 @@
   <div class="header">
     <div style="display: flex; align-items: center">
       <img
-        src="/img/logo-white.png"
+        src="@/public/img/logo-white.png"
         alt="logo-white"
         srcset=""
         style="width: 125px; height: fit-content"
@@ -49,11 +49,76 @@
           <font-awesome-icon icon="fa-solid fa-user" class="text-gray-600" />
         </DropdownToggle>
         <DropdownMenu dark>
-          <DropdownItem id="login"> Login </DropdownItem>
+          <DropdownItem
+            id="login"
+            v-show="is_logged_in == false"
+            @click="isOpen = true"
+          >
+            Login
+          </DropdownItem>
+          <DropdownItem
+            id="logout"
+            v-show="is_logged_in == true"
+            @click="logout"
+          >
+            Logout
+          </DropdownItem>
         </DropdownMenu>
       </Dropdown>
     </div>
   </div>
+
+  <UModal v-model="isOpen">
+    <UCard
+      :ui="{
+        ring: '',
+        divide: 'divide-y divide-gray-100 dark:divide-gray-800',
+        background: 'bg-gray-800',
+      }"
+    >
+      <template #header>
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-semibold leading-6 text-white">
+            Login Modal
+          </h3>
+          <UButton
+            color="gray"
+            variant="ghost"
+            icon="i-heroicons-x-mark-20-solid"
+            class="-my-1"
+            @click="isOpen = false"
+          />
+        </div>
+      </template>
+
+      <div>
+        <div class="register-input">
+          <input
+            placeholder="Email"
+            class="peer h-full w-full border-b border-blue-gray-200 bg-transparent pt-4 pb-1.5 font-sans text-sm font-normal outline outline-0 transition-all placeholder-shown:border-blue-200 focus:border-blue-400 focus:outline-0"
+            v-model="login.email"
+          />
+        </div>
+        <div class="register-input">
+          <input
+            placeholder="Password"
+            class="peer h-full w-full border-b border-blue-gray-200 bg-transparent pt-4 pb-1.5 font-sans text-sm font-normal outline outline-0 transition-all placeholder-shown:border-blue-200 focus:border-blue-400 focus:outline-0"
+            v-model="login.password"
+          />
+        </div>
+        <div class="register-input">
+          <button
+            :disabled="v$.invalid"
+            class="bg-green-500 disabled:bg-slate-500 rounded-full px-2 h-6 sub_text text-white w-full"
+            @click="loginSubmit"
+          >
+            login
+          </button>
+        </div>
+      </div>
+      <!-- <Placeholder class="h-32" /> -->
+    </UCard>
+  </UModal>
 </template>
 
 <style lang="scss">
@@ -85,11 +150,21 @@
   margin-left: 200px;
   width: 300px;
 }
+
+.register-input {
+  margin-bottom: 10px;
+}
 </style>
 
 <script>
 import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { useVuelidate } from "@vuelidate/core";
+import { required, email } from "@vuelidate/validators";
+
 export default {
+  setup() {
+    return { v$: useVuelidate(), toast: useToast(), userStore: useUserStore() };
+  },
   data() {
     return {
       promotion_end_date: "2024-12-31T23:59:59",
@@ -100,7 +175,21 @@ export default {
         seconds: 0,
         intervalId: null,
       },
+      login: {
+        email: "cc@hotmail.com",
+        password: "123456",
+      },
       faUser,
+      isOpen: false,
+      is_logged_in: false,
+    };
+  },
+  validations() {
+    return {
+      login: {
+        email: { required, email },
+        password: { required },
+      },
     };
   },
   mounted() {
@@ -130,6 +219,33 @@ export default {
           this.promotion.seconds = 0;
         }
       }, 1000);
+    },
+    async loginSubmit() {
+      const result = await this.v$.$validate();
+      if (!result) {
+        console.log(this.v$);
+        alert("Please fill in all required fields");
+        return;
+      }
+
+      const form = await this.userStore.login(
+        this.login.email,
+        this.login.password
+      );
+
+      if (this.userStore.is_logged_in) {
+        this.toast.add({ title: "Login successful", variant: "success" });
+        this.isOpen = false;
+        this.is_logged_in = this.userStore.is_logged_in;
+
+        console.log(this.is_logged_in);
+      }
+    },
+    async logout() {
+      await this.userStore.logout();
+      this.is_logged_in = this.userStore.is_logged_in;
+
+      this.toast.add({ title: "Logout successful", variant: "success" });
     },
   },
 };

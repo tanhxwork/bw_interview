@@ -5,6 +5,7 @@ import { faChevronRight } from "@fortawesome/free-solid-svg-icons/faChevronRight
 
 // This is important, we are going to let Nuxt worry about the CSS
 config.autoAddCss = false;
+config.commentRendering = false;
 
 // Here we add the entire free regular icon package to the library
 library.add(faUser, faChevronRight);

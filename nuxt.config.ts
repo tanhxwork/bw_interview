@@ -13,7 +13,11 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  modules: ["usebootstrap"],
+  plugins: ["~/plugins/fontawesome.js"],
+  modules: ["usebootstrap", "@nuxt/ui", '@pinia/nuxt'],
+  pinia: {
+    storesDirs: ['./stores/**'],
+  },
   usebootstrap: {
     bootstrap: {
       prefix: ``,
@@ -22,4 +26,23 @@ export default defineNuxtConfig({
       prefix: `B`,
     },
   },
+  routeRules: {
+    '/api/**': {cors:true}
+  }
+  // proxy: {
+  //   '/api' : 'http://localhost:8080'
+  // },
+  // render: {
+  //   bundleRenderer: {
+  //     shouldPreload: (file, type) => {
+  //       // Disable cache-busting for images
+  //       if (type === "image") return false;
+  //       // Cache-bust other file types
+  //       return true;
+  //     },
+  //   },
+  // },
+  // serverMiddleware: [
+  //   { path: '/api', handler: '~/server-middleware/proxy.js' }
+  // ]
 });
